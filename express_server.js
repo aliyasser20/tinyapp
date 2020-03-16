@@ -14,7 +14,7 @@ const generateRandomString = () => {
   for (let i = 0; i < 6; i++) {
     const randomNumberOrLetter = Math.round(Math.random());
     const randomNumber = Math.floor(Math.random() * 9);
-    const randomLetterIndex = Math.ceil(Math.random() * 52);
+    const randomLetterIndex = Math.ceil(Math.random() * 51);
     if (randomNumberOrLetter) {
       encodedString += alphabetLowerAndCapital[randomLetterIndex];
     } else {
@@ -22,7 +22,7 @@ const generateRandomString = () => {
     }
   }
 
-  console.log(encodedString);
+  return encodedString;
 };
 
 const urlDatabase = {
@@ -52,13 +52,19 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+  const newShortURL = generateRandomString();
+  urlDatabase[newShortURL] = req.body.longURL;
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
