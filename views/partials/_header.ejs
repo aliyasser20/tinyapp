@@ -18,5 +18,26 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <form class="form-inline" action="/login" method="POST">
+      <div class="form-group mb-2"></div>
+        <input
+          class="form-control"
+          type="text"
+          name="username"
+          placeholder="Username"
+          style="width: 200px; margin: 0.5em"
+        />
+        <button type="submit" class="btn btn-dark">Login</button>
+      </div>
+    </form>
   </nav>
 </header>
+
+<style>
+  .btn-dark {
+    color: #343a40;
+    background-color: #28a745;
+    border: 1px solid #343a40;
+    font-weight: 500;
+  }
+</style>
