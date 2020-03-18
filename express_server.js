@@ -122,9 +122,11 @@ app.post("/login", (req, res) => {
   for (let key in users) {
     if (users[key].email === req.body.email && users[key].password === req.body.password) {
       res.cookie("user_id", users[key].id);
+      res.redirect("/urls");
     }
   }
-  res.redirect("/urls");
+  res.statusCode = 403;
+  res.redirect("/login");
 });
 
 app.post("/logout", (req, res) => {
@@ -136,7 +138,7 @@ app.post("/register", (req, res) => {
   const newId = generateRandomString();
   if (req.body.email.length === 0 || req.body.password.length === 0 || emailExistChecker(users, req.body.email)) {
     res.statusCode = 400;
-    res.send("Email already exists");
+    res.redirect("/register");
   } else {
     users[newId] = {
       id: newId,
