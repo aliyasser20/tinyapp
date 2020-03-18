@@ -29,11 +29,23 @@ const generateRandomString = () => {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "aJ48lW"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "aJ48lW"
+  }
 };
 
-const users = {};
+const users = {
+  "aJ48lW": {
+    id: "aJ48lW",
+    email: "test@test.com",
+    password: "test",
+  }
+};
 
 const emailExistChecker = (usersDb, email) => {
   for (let key in usersDb) {
@@ -44,24 +56,33 @@ const emailExistChecker = (usersDb, email) => {
   return false;
 };
 
+const findUserUrls = (URLsDb, userID) => {
+  const userUrls = {};
+
+  for (let key in URLsDb) {
+    if (URLsDb.hasOwnProperty(key)) {
+      URLsDb[key].userID === userID ? userUrls[key] = URLsDb[key] : null;
+    }
+  }
+
+  return userUrls;
+};
+
 // !
 
 // ! GETS
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  const currentUserId = req.cookies["user_id"];
+  if (currentUserId) {
+    res.redirect("/urls");
+  }
+  res.redirect("/login");
 });
 
 app.get("/urls", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-  const templateVars = {urls: urlDatabase, user: users[currentUserId]};
+
+  const templateVars = {urls: findUserUrls(urlDatabase, currentUserId), user: users[currentUserId]};
   res.render("urls_index", templateVars);
 });
 
