@@ -35,6 +35,15 @@ const urlDatabase = {
 
 const users = {};
 
+const emailExistChecker = (usersDb, email) => {
+  for (let key in usersDb) {
+    if (usersDb[key].email === email) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // !
 
 // ! GETS
@@ -119,13 +128,18 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   const newId = generateRandomString();
-  users[newId] = {
-    id: newId,
-    email: req.body.email,
-    password: req.body.password
-  };
-  res.cookie("user_id", newId);
-  res.redirect("/urls");
+  if (req.body.email.length === 0 || req.body.password.length === 0 || emailExistChecker(users, req.body.email)) {
+    res.statusCode = 400;
+    res.send("Email already exists");
+  } else {
+    users[newId] = {
+      id: newId,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie("user_id", newId);
+    res.redirect("/urls");
+  }
 });
 
 // !
