@@ -75,35 +75,39 @@ app.get("/", (req, res) => {
   const currentUserId = req.cookies["user_id"];
   if (currentUserId) {
     res.redirect("/urls");
+  } else {
+    res.redirect("/login");
   }
-  res.redirect("/login");
 });
 
 app.get("/urls", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-
   const templateVars = {urls: findUserUrls(urlDatabase, currentUserId), user: users[currentUserId]};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-  const templateVars = {user: users[currentUserId]};
-  res.render("urls_new", templateVars);
+  if (users[currentUserId]) {
+    const templateVars = {user: users[currentUserId]};
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.cookies["user_id"];
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[currentUserId]
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -124,9 +128,18 @@ app.get("/login", (req, res) => {
 
 // ! POSTS
 app.post("/urls", (req, res) => {
-  const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = req.body.longURL;
-  res.redirect(`/urls/${newShortURL}`);
+  const currentUserId = req.cookies["user_id"];
+
+  if (users[currentUserId]) {
+    const newShortURL = generateRandomString();
+    urlDatabase[newShortURL] = {
+      longURL: req.body.longURL,
+      userID: currentUserId
+    };
+    res.redirect(`/urls/${newShortURL}`);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -135,19 +148,27 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/put", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.newURL;
+  urlDatabase[req.params.shortURL] = {
+    ...urlDatabase[req.params.shortURL],
+    longURL: req.body.newURL,
+  };
   res.redirect("/urls");
 });
 
 app.post("/login", (req, res) => {
+  let inSuccessful = true;
   for (let key in users) {
     if (users[key].email === req.body.email && users[key].password === req.body.password) {
       res.cookie("user_id", users[key].id);
       res.redirect("/urls");
+      inSuccessful = false;
     }
   }
-  res.statusCode = 403;
-  res.redirect("/login");
+
+  if (inSuccessful) {
+    res.statusCode = 403;
+    res.redirect("/login");
+  }
 });
 
 app.post("/logout", (req, res) => {
