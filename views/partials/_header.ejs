@@ -18,10 +18,10 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div> 
-    <% if (username) { %>
+    <% if (user) { %>
         <form class="form-inline" action="/logout" method="POST">
           <div class="form-group mb-2"></div>
-            <div class="logged-user">Logged In As: &nbsp <strong class="white"><%= username %></strong></div>
+            <div class="logged-user">Logged In As: &nbsp <strong class="white"><%= user.email %></strong></div>
             <button type="submit" class="btn btn-dark">Logout</button>
           </div>
         </form>
@@ -51,7 +51,6 @@
   }
 
   .logged-user {
-    text-transform: capitalize;
     font-weight: 500;
     margin-right: 20px;
     cursor: default;
