@@ -56,7 +56,7 @@ const emailExistChecker = (usersDb, email) => {
   return false;
 };
 
-const findUserUrls = (URLsDb, userID) => {
+const urlsForUser = (URLsDb, userID) => {
   const userUrls = {};
 
   for (let key in URLsDb) {
@@ -82,7 +82,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-  const templateVars = {urls: findUserUrls(urlDatabase, currentUserId), user: users[currentUserId]};
+  const templateVars = {urls: urlsForUser(urlDatabase, currentUserId), user: users[currentUserId]};
   res.render("urls_index", templateVars);
 });
 
@@ -98,12 +98,17 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[currentUserId]
-  };
-  res.render("urls_show", templateVars);
+
+  if (users[currentUserId] && users[currentUserId][req.params.shortURL]) {
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      user: users[currentUserId]
+    };
+    res.render("urls_show", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -143,16 +148,30 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  const currentUserId = req.cookies["user_id"];
+
+  if (users[currentUserId] && users[currentUserId][req.params.shortURL]) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.statusCode = 403;
+    res.send("Error: 403\n");
+  }
 });
 
 app.post("/urls/:shortURL/put", (req, res) => {
-  urlDatabase[req.params.shortURL] = {
-    ...urlDatabase[req.params.shortURL],
-    longURL: req.body.newURL,
-  };
-  res.redirect("/urls");
+  const currentUserId = req.cookies["user_id"];
+
+  if (users[currentUserId] && users[currentUserId][req.params.shortURL]) {
+    urlDatabase[req.params.shortURL] = {
+      ...urlDatabase[req.params.shortURL],
+      longURL: req.body.newURL,
+    };
+    res.redirect("/urls");
+  } else {
+    res.statusCode = 403;
+    res.send("Error: 403\n");
+  }
 });
 
 app.post("/login", (req, res) => {
