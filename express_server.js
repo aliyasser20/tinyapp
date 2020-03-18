@@ -93,6 +93,12 @@ app.get("/register" , (req, res) => {
   res.render("urls_register", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  const currentUserId = req.cookies["user_id"];
+  const templateVars = {user: users[currentUserId]};
+  res.render("login", templateVars);
+});
+
 // !
 
 // ! POSTS
@@ -114,7 +120,7 @@ app.post("/urls/:shortURL/put", (req, res) => {
 
 app.post("/login", (req, res) => {
   for (let key in users) {
-    if (users[key].email === req.body.username) {
+    if (users[key].email === req.body.email && users[key].password === req.body.password) {
       res.cookie("user_id", users[key].id);
     }
   }

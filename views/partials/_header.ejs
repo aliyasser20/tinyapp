@@ -22,31 +22,18 @@
         <form class="form-inline" action="/logout" method="POST">
           <div class="form-group mb-2"></div>
             <div class="logged-user">Logged In As: &nbsp <strong class="white"><%= user.email %></strong></div>
-            <button type="submit" class="btn btn-dark">Logout</button>
+            <button type="submit" class="btn btn-outline-dark">Logout</button>
           </div>
         </form>
     <% } else { %>
-          <form class="form-inline" action="/login" method="POST">
-            <div class="form-group mb-2"></div>
-              <input
-                class="form-control"
-                type="text"
-                name="username"
-                placeholder="Username"
-                style="width: 200px; margin: 0.5em"
-              />
-              <button type="submit" class="btn btn-dark">Login</button>
-            </div>
-          </form>
+      <a style="margin-right: 15px;" href="/login" class="btn-link white font-weight-bold">Login</a>
+      <a href="/register" class="btn-link dark font-weight-bold">Register</a>
     <% } %>
   </nav>
 </header>
 
 <style>
-  .btn-dark {
-    color: #343a40;
-    background-color: #28a745;
-    border: 1px solid #343a40;
+  .btn-outline-dark {
     font-weight: 500;
   }
 
@@ -58,6 +45,18 @@
 
   .white {
     color: white;
+  }
+
+  .white:hover {
+    color: white;
+  }
+
+  .dark {
+    color: #343a40;
+  }
+
+  .dark:hover {
+    color: #343a40;
   }
 
   .added-height {
