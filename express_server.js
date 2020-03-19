@@ -15,7 +15,7 @@ const PORT = 3000; // default port 8080
 
 app.use(cookieSession({
   name: "session",
-  keys: ["secret"],
+  keys: ["user_id"],
 
   maxAge: 60 * 60 * 1000 // 1 hour
 }));
@@ -176,7 +176,6 @@ app.post("/logout", (req, res) => {
 
 // ? Register
 app.post("/register", (req, res) => {
-  console.log("before register", users);
   const newId = generateRandomString();
   
   if (req.body.email.length === 0 || req.body.password.length === 0) {
@@ -192,7 +191,6 @@ app.post("/register", (req, res) => {
       password: bcrypt.hashSync(req.body.password, 10)
     };
     req.session.user_id = newId;
-    console.log("after register", users);
     res.redirect("/urls");
   }
 });
