@@ -1,3 +1,4 @@
+// ? Function that returns the current user's object (returns undefined if not in database)
 const getUserByEmail = function(email, database) {
   for (let key in database) {
     if (database.hasOwnProperty(key)) {
@@ -9,18 +10,20 @@ const getUserByEmail = function(email, database) {
   return undefined;
 };
 
+// ? Function that returns an object with urls for current user only (empty if none)
 const urlsForUser = (URLsDb, userID) => {
   const userUrls = {};
-
+  
   for (let key in URLsDb) {
     if (URLsDb.hasOwnProperty(key)) {
       URLsDb[key].userID === userID ? userUrls[key] = URLsDb[key] : null;
     }
   }
-
+  
   return userUrls;
 };
 
+// ? Function that generates a random 6 character alphanumeric key
 const generateRandomString = () => {
   const alphabetLowerAndCapital = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let encodedString = "";
