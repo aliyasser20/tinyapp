@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const PORT = 3000; // default port 8080
@@ -28,24 +29,9 @@ const generateRandomString = () => {
   return encodedString;
 };
 
-const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "aJ48lW"
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "aJ48lW"
-  }
-};
+const urlDatabase = {};
 
-const users = {
-  "aJ48lW": {
-    id: "aJ48lW",
-    email: "test@test.com",
-    password: "test",
-  }
-};
+const users = {};
 
 const emailExistChecker = (usersDb, email) => {
   for (let key in usersDb) {
@@ -191,7 +177,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   let inSuccessful = true;
   for (let key in users) {
-    if (users[key].email === req.body.email && users[key].password === req.body.password) {
+    if (users[key].email === req.body.email && bcrypt.compareSync(req.body.password, users[key].password)) {
       res.cookie("user_id", users[key].id);
       res.redirect("/urls");
       inSuccessful = false;
@@ -222,7 +208,7 @@ app.post("/register", (req, res) => {
     users[newId] = {
       id: newId,
       email: req.body.email,
-      password: req.body.password
+      password: bcrypt.hashSync(req.body.password, 10)
     };
     res.cookie("user_id", newId);
     res.redirect("/urls");
