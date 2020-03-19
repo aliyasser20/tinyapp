@@ -14,7 +14,7 @@ This is a full stack web application built with **Node** and **Express** that al
 
 ### Create New Tiny URL
 
-![create-new](./docs/create-new-url.gif)
+![create-new-url](./docs/create-new-url.gif)
 
 ---
 
