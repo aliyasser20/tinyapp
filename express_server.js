@@ -174,7 +174,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-app.post("/urls/:shortURL/put", (req, res) => {
+app.post("/urls/:shortURL", (req, res) => {
   const currentUserId = req.cookies["user_id"];
 
   if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
