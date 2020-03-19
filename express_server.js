@@ -99,7 +99,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.cookies["user_id"];
 
-  if (users[currentUserId] && users[currentUserId][req.params.shortURL]) {
+  if (users[currentUserId]) {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
@@ -134,8 +134,8 @@ app.get("/login", (req, res) => {
 // ! POSTS
 app.post("/urls", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-
   if (users[currentUserId]) {
+    console.log("reached");
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
       longURL: req.body.longURL,
