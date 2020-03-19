@@ -11,7 +11,7 @@ const {generateRandomString, urlsForUser, getUserByEmail} = require("./helpers")
 
 // ! Setup
 const app = express();
-const PORT = 3000; // default port 8080
+const PORT = 8080; // default port 8080
 
 app.use(cookieSession({
   name: "session",
@@ -28,11 +28,12 @@ const urlDatabase = {};
 const users = {};
 // !
 
-// ! GETS
+// ! GETs
 // ? Root
+// Redirects to URLs page if authenticated user is logged in. Otherwise, redirects to login page.
 app.get("/", (req, res) => {
   const currentUserId = req.session.user_id;
-  if (currentUserId) {
+  if (users[currentUserId]) {
     res.redirect("/urls");
   } else {
     res.redirect("/login");
@@ -40,6 +41,7 @@ app.get("/", (req, res) => {
 });
 
 // ? URLs
+// Renders URLs page with added template vars
 app.get("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
   const templateVars = {urls: urlsForUser(urlDatabase, currentUserId), user: users[currentUserId]};
@@ -47,6 +49,7 @@ app.get("/urls", (req, res) => {
 });
 
 // ? New URL
+// Renders new URL page if authenticated user is logged in. Otherwise, redirects to login page.
 app.get("/urls/new", (req, res) => {
   const currentUserId = req.session.user_id;
   if (users[currentUserId]) {
@@ -58,6 +61,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 // ? Edit URL
+// Renders edit URL page if authenticated user is logged in and user owns shortURL. Otherwise, renders an error page (404 Not found, if short URL is not in database OR 403 Access forbidden if user not logged in, or user logged in but does not own shortURL).
 app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
   
@@ -78,6 +82,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 // ? Redirect to long URL
+// Redirects user to long URL if shortURL is in database. Otherwise, renders a 404 Not found page.
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
@@ -89,6 +94,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 // ? Register
+// Renders register page if no authenticated user is logged in. Otherwise, redirects to URLs page.
 app.get("/register" , (req, res) => {
   const currentUserId = req.session.user_id;
   if (currentUserId) {
@@ -99,6 +105,7 @@ app.get("/register" , (req, res) => {
 });
 
 // ? Login
+// Renders login page if no authenticated user is logged in. Otherwise, redirects to URLs page.
 app.get("/login", (req, res) => {
   const currentUserId = req.session.user_id;
   if (currentUserId) {
@@ -109,8 +116,9 @@ app.get("/login", (req, res) => {
 });
 // !
 
-// ! POSTS
+// ! POSTs
 // ? Create new URL
+// If authenticated user is logged in, creates new shortURL for input longURL and saves into database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
 app.post("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
   if (users[currentUserId]) {
@@ -127,6 +135,7 @@ app.post("/urls", (req, res) => {
 });
 
 // ? Delete URL
+// If authenticated user is logged in and owns shortURL, deletes shortURL entry in database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
 app.post("/urls/:shortURL/delete", (req, res) => {
   const currentUserId = req.session.user_id;
   
@@ -140,6 +149,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 // ? Edit URL
+// If authenticated user is logged in and owns shortURL, assigns new longURL to existing shortURL entry in database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
 app.post("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
   
@@ -156,6 +166,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 // ? Login
+// Sets user_id of user to session encrypted cookie if email and password match users database entry, then redirects to URLS page. Otherwise, re-renders login page with added error message: Incorrect email or password.
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email, users);
   
@@ -169,12 +180,14 @@ app.post("/login", (req, res) => {
 });
 
 // ? Logout
+// Clears session encrypted cookie of user_id, then redirects to URLs page.
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/urls");
 });
 
 // ? Register
+// If email and password are not empty, and user does not already exist, adds user to users database and sets user_id of user to session encrypted cookie. Otherwise, re-renders register page with added error message: ("Email and/or password can not be empty!" if either fields are empty OR "Email already exists!" if user exists in database).
 app.post("/register", (req, res) => {
   const newId = generateRandomString();
   
