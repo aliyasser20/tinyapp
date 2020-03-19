@@ -99,7 +99,9 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.cookies["user_id"];
 
-  if (users[currentUserId]) {
+  if (!urlDatabase[req.params.shortURL]) {
+    res.render("error", {code: "404", description: "Page Not Found"});
+  } else if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
@@ -107,7 +109,7 @@ app.get("/urls/:shortURL", (req, res) => {
     };
     res.render("urls_show", templateVars);
   } else {
-    res.redirect("/login");
+    res.render("error", {code: "403", description: "Access Forbidden"});
   }
 });
 
