@@ -114,6 +114,13 @@ app.get("/login", (req, res) => {
     res.render("login", {user: undefined, error: undefined});
   }
 });
+
+// ? Any Other Path
+// Renders 404 Not found page for any other path
+app.get("/:anythingElse", (req, res) => {
+  res.statusCode = 404;
+  res.render("error", {code: "404", description: "Page Not Found"});
+});
 // ! ----------------------------------------- //
 
 // ! POSTs ----------------------------------------- //
