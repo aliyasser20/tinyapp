@@ -28,7 +28,7 @@ const urlDatabase = {};
 const users = {};
 // !
 
-// ! GETs
+// ! GETs ----------------------------------------- //
 // ? Root
 // Redirects to URLs page if authenticated user is logged in. Otherwise, redirects to login page.
 app.get("/", (req, res) => {
@@ -114,9 +114,9 @@ app.get("/login", (req, res) => {
     res.render("login", {user: undefined, error: undefined});
   }
 });
-// !
+// ! ----------------------------------------- //
 
-// ! POSTs
+// ! POSTs ----------------------------------------- //
 // ? Create new URL
 // If authenticated user is logged in, creates new shortURL for input longURL and saves into database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
 app.post("/urls", (req, res) => {
@@ -207,7 +207,7 @@ app.post("/register", (req, res) => {
     res.redirect("/urls");
   }
 });
-// !
+// ! ----------------------------------------- //
 
 // ! Listen to requests
 app.listen(PORT, () => {
