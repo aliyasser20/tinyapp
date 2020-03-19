@@ -1,7 +1,7 @@
 {
   "name": "tinyapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "A full stack web application built with Node and Express that allows users to shorten long URLs",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/aliyasser20/tinyapp.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ali Sayed",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aliyasser20/tinyapp/issues"
