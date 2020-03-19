@@ -33,6 +33,7 @@ const users = {};
 // Redirects to URLs page if authenticated user is logged in. Otherwise, redirects to login page.
 app.get("/", (req, res) => {
   const currentUserId = req.session.user_id;
+
   if (users[currentUserId]) {
     res.redirect("/urls");
   } else {
@@ -45,6 +46,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
   const templateVars = {urls: urlsForUser(urlDatabase, currentUserId), user: users[currentUserId]};
+  
   res.render("urls_index", templateVars);
 });
 
@@ -52,6 +54,7 @@ app.get("/urls", (req, res) => {
 // Renders new URL page if authenticated user is logged in. Otherwise, redirects to login page.
 app.get("/urls/new", (req, res) => {
   const currentUserId = req.session.user_id;
+
   if (users[currentUserId]) {
     const templateVars = {user: users[currentUserId]};
     res.render("urls_new", templateVars);
@@ -97,6 +100,7 @@ app.get("/u/:shortURL", (req, res) => {
 // Renders register page if no authenticated user is logged in. Otherwise, redirects to URLs page.
 app.get("/register" , (req, res) => {
   const currentUserId = req.session.user_id;
+
   if (currentUserId) {
     res.redirect("/urls");
   } else {
@@ -108,6 +112,7 @@ app.get("/register" , (req, res) => {
 // Renders login page if no authenticated user is logged in. Otherwise, redirects to URLs page.
 app.get("/login", (req, res) => {
   const currentUserId = req.session.user_id;
+
   if (currentUserId) {
     res.redirect("/urls");
   } else {
@@ -128,6 +133,7 @@ app.get("/:anythingElse", (req, res) => {
 // If authenticated user is logged in, creates new shortURL for input longURL and saves into database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
 app.post("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
+
   if (users[currentUserId]) {
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
