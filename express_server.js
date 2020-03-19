@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
+const methodOverride = require("method-override");
 // !
 
 // ! Module Imports
@@ -13,6 +14,7 @@ const {generateRandomString, urlsForUser, getUserByEmail} = require("./helpers")
 const app = express();
 const PORT = 8080; // default port 8080
 
+app.use(methodOverride("_method"));
 app.use(cookieSession({
   name: "session",
   keys: ["user_id"],
@@ -149,7 +151,7 @@ app.post("/urls", (req, res) => {
 
 // ? Delete URL
 // If authenticated user is logged in and owns shortURL, deletes shortURL entry in database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
   
   if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
@@ -163,7 +165,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // ? Edit URL
 // If authenticated user is logged in and owns shortURL, assigns new longURL to existing shortURL entry in database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
-app.post("/urls/:shortURL", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
   
   if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
