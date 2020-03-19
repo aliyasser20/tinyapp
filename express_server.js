@@ -1,65 +1,35 @@
+// ! Package Imports
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cookieSession = require("cookie-session");
+// !
 
+// ! Module Imports
+const {generateRandomString, urlsForUser, getUserByEmail} = require("./helpers");
+// !
+
+// ! Setup
 const app = express();
 const PORT = 3000; // default port 8080
 
 app.use(cookieSession({
   name: "session",
   keys: ["secret"],
+
+  maxAge: 60 * 60 * 1000 // 1 hour
 }));
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
+// !
 
 // ! Global Variables
-const generateRandomString = () => {
-  const alphabetLowerAndCapital = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let encodedString = "";
-
-  for (let i = 0; i < 6; i++) {
-    const randomNumberOrLetter = Math.round(Math.random());
-    const randomNumber = Math.floor(Math.random() * 9);
-    const randomLetterIndex = Math.ceil(Math.random() * 51);
-    if (randomNumberOrLetter) {
-      encodedString += alphabetLowerAndCapital[randomLetterIndex];
-    } else {
-      encodedString += randomNumber;
-    }
-  }
-
-  return encodedString;
-};
-
 const urlDatabase = {};
-
 const users = {};
-
-const emailExistChecker = (usersDb, email) => {
-  for (let key in usersDb) {
-    if (usersDb[key].email === email) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const urlsForUser = (URLsDb, userID) => {
-  const userUrls = {};
-
-  for (let key in URLsDb) {
-    if (URLsDb.hasOwnProperty(key)) {
-      URLsDb[key].userID === userID ? userUrls[key] = URLsDb[key] : null;
-    }
-  }
-
-  return userUrls;
-};
-
 // !
 
 // ! GETS
+// ? Root
 app.get("/", (req, res) => {
   const currentUserId = req.session.user_id;
   if (currentUserId) {
@@ -69,12 +39,14 @@ app.get("/", (req, res) => {
   }
 });
 
+// ? URLs
 app.get("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
   const templateVars = {urls: urlsForUser(urlDatabase, currentUserId), user: users[currentUserId]};
   res.render("urls_index", templateVars);
 });
 
+// ? New URL
 app.get("/urls/new", (req, res) => {
   const currentUserId = req.session.user_id;
   if (users[currentUserId]) {
@@ -85,9 +57,10 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+// ? Edit URL
 app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
-
+  
   if (!urlDatabase[req.params.shortURL]) {
     res.statusCode = 404;
     res.render("error", {code: "404", description: "Page Not Found"});
@@ -104,6 +77,7 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+// ? Redirect to long URL
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
@@ -114,6 +88,7 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
+// ? Register
 app.get("/register" , (req, res) => {
   const currentUserId = req.session.user_id;
   if (currentUserId) {
@@ -123,6 +98,7 @@ app.get("/register" , (req, res) => {
   }
 });
 
+// ? Login
 app.get("/login", (req, res) => {
   const currentUserId = req.session.user_id;
   if (currentUserId) {
@@ -131,10 +107,10 @@ app.get("/login", (req, res) => {
     res.render("login", {user: undefined, error: undefined});
   }
 });
-
 // !
 
 // ! POSTS
+// ? Create new URL
 app.post("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
   if (users[currentUserId]) {
@@ -150,9 +126,10 @@ app.post("/urls", (req, res) => {
   }
 });
 
+// ? Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const currentUserId = req.session.user_id;
-
+  
   if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
@@ -162,9 +139,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
+// ? Edit URL
 app.post("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
-
+  
   if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     urlDatabase[req.params.shortURL] = {
       ...urlDatabase[req.params.shortURL],
@@ -177,34 +155,34 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
+// ? Login
 app.post("/login", (req, res) => {
-  let inSuccessful = true;
-  for (let key in users) {
-    if (users[key].email === req.body.email && bcrypt.compareSync(req.body.password, users[key].password)) {
-      req.session.user_id = users[key].id;
-      res.redirect("/urls");
-      inSuccessful = false;
-    }
-  }
-
-  if (inSuccessful) {
+  const user = getUserByEmail(req.body.email, users);
+  
+  if (user && bcrypt.compareSync(req.body.password, user.password)) {
+    req.session.user_id = user.id;
+    res.redirect("/urls");
+  } else {
     res.statusCode = 400;
     res.render("login", {user: undefined, error: "Incorrect email or password!"});
   }
 });
 
+// ? Logout
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/urls");
 });
 
+// ? Register
 app.post("/register", (req, res) => {
+  console.log("before register", users);
   const newId = generateRandomString();
   
   if (req.body.email.length === 0 || req.body.password.length === 0) {
     res.statusCode = 400;
     res.render("urls_register", {user: undefined, error: "Email and/or password can not be empty!"});
-  } else if (emailExistChecker(users, req.body.email)) {
+  } else if (getUserByEmail(req.body.email, users)) {
     res.statusCode = 400;
     res.render("urls_register", {user: undefined, error: "Email already exists!"});
   } else {
@@ -214,12 +192,14 @@ app.post("/register", (req, res) => {
       password: bcrypt.hashSync(req.body.password, 10)
     };
     req.session.user_id = newId;
+    console.log("after register", users);
     res.redirect("/urls");
   }
 });
-
 // !
 
+// ! Listen to requests
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+// !
