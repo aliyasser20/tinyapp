@@ -25,6 +25,7 @@
       <h3 class="error-description">
         <%= description %>
       </h3>
+      <a class="dark-link" href="/urls">Redirect to home page ...</a>
     </div>
     <main style="margin: -1em;"></main>
     <!-- Bootstrap JS -->
@@ -68,6 +69,18 @@
 
     .error-description {
       font-size: 50px;
+    }
+
+    .dark-link,
+    .dark-link:hover {
+      margin-top: 50px;
+      font-size: 25px;
+      font-weight: 600;
+      color: #2a2e32;
+    }
+
+    .dark-link:hover {
+      text-decoration: underline;
     }
   </style>
 </html>

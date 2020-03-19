@@ -149,7 +149,6 @@ app.get("/login", (req, res) => {
 app.post("/urls", (req, res) => {
   const currentUserId = req.cookies["user_id"];
   if (users[currentUserId]) {
-    console.log("reached");
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
       longURL: req.body.longURL,
@@ -215,9 +214,8 @@ app.post("/register", (req, res) => {
   
   if (req.body.email.length === 0 || req.body.password.length === 0) {
     res.statusCode = 400;
-    res.render("urls_register", {user: undefined, error: "Email and password can not be empty!"});
-  }
-  if (emailExistChecker(users, req.body.email)) {
+    res.render("urls_register", {user: undefined, error: "Email and/or password can not be empty!"});
+  } else if (emailExistChecker(users, req.body.email)) {
     res.statusCode = 400;
     res.render("urls_register", {user: undefined, error: "Email already exists!"});
   } else {

@@ -14,7 +14,6 @@
   <body>
     <%- include("partials/_header") %>
 
-    <% if (user) { %>
       <div class="card text-center">
         <div class="card-header"></div>
         <div class="card-body">
@@ -42,9 +41,6 @@
           </form>
         </div>
       </div>
-    <% } else { %>
-          <h3 style="margin: 0.525em;" class="text-center align-middle">Please login or register.</h3>
-    <% } %>
 
     <!-- Bootstrap JS -->
     <script
