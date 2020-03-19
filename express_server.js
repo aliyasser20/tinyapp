@@ -114,8 +114,12 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  if (urlDatabase[req.params.shortURL]) {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  } else {
+    res.render("error", {code: "404", description: "Page Not Found"});
+  }
 });
 
 app.get("/register" , (req, res) => {
@@ -145,7 +149,7 @@ app.post("/urls", (req, res) => {
     };
     res.redirect(`/urls/${newShortURL}`);
   } else {
-    res.redirect("/login");
+    res.render("error", {code: "403", description: "Access Forbidden"});
   }
 });
 
