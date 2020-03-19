@@ -22,6 +22,11 @@
 
     <main style="margin: 1em;">
       <h3 style="margin-bottom: 1em;">Create Account</h3>
+      <% if (error) { %>
+      <p style="color: red; font-weight: 500; margin-bottom: 30px;">
+        Error: &nbsp <%= error %>
+      </p>
+      <% } %>
       <form action="/register" method="POST">
         <div class="form-group row">
           <label class="col-sm-1 col-form-label" for="email">Email:</label>
@@ -33,7 +38,6 @@
               id="email"
               placeholder="Enter email"
               style="width: 300px;"
-              required
             />
           </div>
         </div>
@@ -49,7 +53,6 @@
               id="password"
               placeholder="Enter new password"
               style="width: 300px;"
-              required
             />
           </div>
         </div>

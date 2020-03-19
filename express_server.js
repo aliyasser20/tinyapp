@@ -100,6 +100,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const currentUserId = req.cookies["user_id"];
 
   if (!urlDatabase[req.params.shortURL]) {
+    res.statusCode = 404;
     res.render("error", {code: "404", description: "Page Not Found"});
   } else if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     const templateVars = {
@@ -109,6 +110,7 @@ app.get("/urls/:shortURL", (req, res) => {
     };
     res.render("urls_show", templateVars);
   } else {
+    res.statusCode = 403;
     res.render("error", {code: "403", description: "Access Forbidden"});
   }
 });
@@ -118,21 +120,27 @@ app.get("/u/:shortURL", (req, res) => {
     const longURL = urlDatabase[req.params.shortURL].longURL;
     res.redirect(longURL);
   } else {
+    res.statusCode = 404;
     res.render("error", {code: "404", description: "Page Not Found"});
   }
 });
 
 app.get("/register" , (req, res) => {
   const currentUserId = req.cookies["user_id"];
-  const templateVars = {user: users[currentUserId]};
-
-  res.render("urls_register", templateVars);
+  if (currentUserId) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_register", {user: undefined, error: undefined});
+  }
 });
 
 app.get("/login", (req, res) => {
   const currentUserId = req.cookies["user_id"];
-  const templateVars = {user: users[currentUserId]};
-  res.render("login", templateVars);
+  if (currentUserId) {
+    res.redirect("/urls");
+  } else {
+    res.render("login", {user: undefined, error: undefined});
+  }
 });
 
 // !
@@ -149,6 +157,7 @@ app.post("/urls", (req, res) => {
     };
     res.redirect(`/urls/${newShortURL}`);
   } else {
+    res.statusCode = 403;
     res.render("error", {code: "403", description: "Access Forbidden"});
   }
 });
@@ -156,19 +165,19 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const currentUserId = req.cookies["user_id"];
 
-  if (users[currentUserId] && users[currentUserId][req.params.shortURL]) {
+  if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
     res.statusCode = 403;
-    res.send("Error: 403\n");
+    res.render("error", {code: "403", description: "Access Forbidden"});
   }
 });
 
 app.post("/urls/:shortURL/put", (req, res) => {
   const currentUserId = req.cookies["user_id"];
 
-  if (users[currentUserId] && users[currentUserId][req.params.shortURL]) {
+  if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     urlDatabase[req.params.shortURL] = {
       ...urlDatabase[req.params.shortURL],
       longURL: req.body.newURL,
@@ -176,7 +185,7 @@ app.post("/urls/:shortURL/put", (req, res) => {
     res.redirect("/urls");
   } else {
     res.statusCode = 403;
-    res.send("Error: 403\n");
+    res.render("error", {code: "403", description: "Access Forbidden"});
   }
 });
 
@@ -191,8 +200,8 @@ app.post("/login", (req, res) => {
   }
 
   if (inSuccessful) {
-    res.statusCode = 403;
-    res.redirect("/login");
+    res.statusCode = 400;
+    res.render("login", {user: undefined, error: "Incorrect email or password!"});
   }
 });
 
@@ -203,9 +212,14 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   const newId = generateRandomString();
-  if (req.body.email.length === 0 || req.body.password.length === 0 || emailExistChecker(users, req.body.email)) {
+  
+  if (req.body.email.length === 0 || req.body.password.length === 0) {
     res.statusCode = 400;
-    res.redirect("/register");
+    res.render("urls_register", {user: undefined, error: "Email and password can not be empty!"});
+  }
+  if (emailExistChecker(users, req.body.email)) {
+    res.statusCode = 400;
+    res.render("urls_register", {user: undefined, error: "Email already exists!"});
   } else {
     users[newId] = {
       id: newId,
