@@ -60,7 +60,6 @@ A **package.json** file has been set up with all the dependencies needed for thi
 
 ```json
 {
-  {
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "A full stack web application built with Node and Express that allows users to shorten long URLs",
@@ -94,6 +93,7 @@ A **package.json** file has been set up with all the dependencies needed for thi
     "nodemon": "^2.0.2"
   }
 }
+
 ```
 
 ## Run Locally
