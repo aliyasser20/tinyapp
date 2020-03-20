@@ -7,7 +7,7 @@ const methodOverride = require("method-override");
 // !
 
 // ! Module Imports
-const {generateRandomString, urlsForUser, getUserByEmail, validateURL} = require("./helpers");
+const {generateRandomString, urlsForUser, getUserByEmail, validateURL, URLExistsChecker} = require("./helpers");
 // !
 
 // ! Setup
@@ -133,13 +133,16 @@ app.get("*", (req, res) => {
 
 // ! POSTs ----------------------------------------- //
 // ? Create new URL
-// If authenticated user is logged in, creates new shortURL for input longURL and saves into database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
+// If authenticated user is logged in, creates new shortURL for input longURL and saves into database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page. [New: re-renders new url page with error message if input does not match validation or is already present in database]
 app.post("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
 
   if (!validateURL(req.body.longURL)) {
     res.statusCode = 400;
     res.render("urls_new", {user: users[currentUserId], error: "Invalid URL!"});
+  } else if (URLExistsChecker(req.body.longURL, urlDatabase)) {
+    res.statusCode = 400;
+    res.render("urls_new", {user: users[currentUserId], error: "URL exists!"});
   } else if (users[currentUserId]) {
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
@@ -168,7 +171,7 @@ app.delete("/urls/:shortURL", (req, res) => {
 });
 
 // ? Edit URL
-// If authenticated user is logged in and owns shortURL, assigns new longURL to existing shortURL entry in database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page.
+// If authenticated user is logged in and owns shortURL, assigns new longURL to existing shortURL entry in database, then redirects to URLs page. Otherwise, renders 403 Access forbidden page. [New: re-renders url page with error message if input does not match validation or is already present in database]
 app.put("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
   
@@ -179,6 +182,14 @@ app.put("/urls/:shortURL", (req, res) => {
       error: "Invalid URL!",
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
+    });
+  } else if (URLExistsChecker(req.body.newURL, urlDatabase)) {
+    res.statusCode = 400;
+    res.render("urls_show", {
+      user: users[currentUserId],
+      error: "URL exists!",
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL
     });
   } else if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     urlDatabase[req.params.shortURL] = {

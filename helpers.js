@@ -29,9 +29,13 @@ const generateRandomString = () => {
   let encodedString = "";
 
   for (let i = 0; i < 6; i++) {
+    // Generate random 0 or 1 (0 will add a number while 1 will add a letter)
     const randomNumberOrLetter = Math.round(Math.random());
+    // Random number to add between 0 and 9
     const randomNumber = Math.floor(Math.random() * 9);
+    // Random letter index
     const randomLetterIndex = Math.ceil(Math.random() * 51);
+    
     if (randomNumberOrLetter) {
       encodedString += alphabetLowerAndCapital[randomLetterIndex];
     } else {
@@ -61,9 +65,22 @@ const validateURL = (URL) => {
   }
 };
 
+// ? Function that returns true if url exists in database. False otherwise.
+const URLExistsChecker = (URL, database) => {
+  for (let key in database) {
+    if (database.hasOwnProperty(key)) {
+      if (database[key].longURL === URL) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 module.exports = {
   generateRandomString,
   urlsForUser,
   getUserByEmail,
-  validateURL
+  validateURL,
+  URLExistsChecker
 };
