@@ -54,7 +54,7 @@ This is a full stack web application built with **Node** and **Express** that al
 - bcrypt
 - body-parser
 - cookie-session
-- -method-override
+- method-override
 
 A **package.json** file has been set up with all the dependencies needed for this app:
 
