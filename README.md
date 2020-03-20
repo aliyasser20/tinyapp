@@ -32,6 +32,15 @@ This is a full stack web application built with **Node** and **Express** that al
 
 ---
 
+### URL Errors
+
+![invalid-URL](./docs/invalid-new-url.png)
+![URL-exists](./docs/new-url-exists.png)
+![invalid-URL](./docs/invalid-update-url.png)
+![URL-exists](./docs/update-url-exists.png)
+
+---
+
 ### Error Pages
 
 !["403"](./docs/403-page.png)
