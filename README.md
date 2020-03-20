@@ -54,11 +54,13 @@ This is a full stack web application built with **Node** and **Express** that al
 - bcrypt
 - body-parser
 - cookie-session
+- -method-override
 
 A **package.json** file has been set up with all the dependencies needed for this app:
 
 ```json
 {
+  {
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "A full stack web application built with Node and Express that allows users to shorten long URLs",
@@ -83,7 +85,8 @@ A **package.json** file has been set up with all the dependencies needed for thi
     "body-parser": "^1.19.0",
     "cookie-session": "^1.4.0",
     "ejs": "^3.0.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "method-override": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
