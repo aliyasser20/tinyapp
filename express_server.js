@@ -78,7 +78,8 @@ app.get("/urls/:shortURL", (req, res) => {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
       user: users[currentUserId],
-      error: ""
+      error: "",
+      visits: urlDatabase[req.params.shortURL].visits
     };
     res.render("urls_show", templateVars);
   } else {
@@ -92,6 +93,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
+    urlDatabase[req.params.shortURL].visits += 1;
     res.redirect(longURL);
   } else {
     res.statusCode = 404;
@@ -140,14 +142,15 @@ app.post("/urls", (req, res) => {
   if (!validateURL(req.body.longURL)) {
     res.statusCode = 400;
     res.render("urls_new", {user: users[currentUserId], error: "Invalid URL!"});
-  } else if (URLExistsChecker(req.body.longURL, urlDatabase)) {
+  } else if (URLExistsChecker(req.body.longURL, urlDatabase, currentUserId)) {
     res.statusCode = 400;
     res.render("urls_new", {user: users[currentUserId], error: "URL exists!"});
   } else if (users[currentUserId]) {
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
       longURL: req.body.longURL,
-      userID: currentUserId
+      userID: currentUserId,
+      visits: 0
     };
     res.redirect(`/urls/${newShortURL}`);
   } else {
@@ -182,14 +185,16 @@ app.put("/urls/:shortURL", (req, res) => {
       error: "Invalid URL!",
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
+      visits: 0
     });
-  } else if (URLExistsChecker(req.body.newURL, urlDatabase)) {
+  } else if (URLExistsChecker(req.body.newURL, urlDatabase, currentUserId)) {
     res.statusCode = 400;
     res.render("urls_show", {
       user: users[currentUserId],
       error: "URL exists!",
       shortURL: req.params.shortURL,
-      longURL: urlDatabase[req.params.shortURL].longURL
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      visits: 0
     });
   } else if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     urlDatabase[req.params.shortURL] = {

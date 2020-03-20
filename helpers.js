@@ -66,10 +66,10 @@ const validateURL = (URL) => {
 };
 
 // ? Function that returns true if url exists in database. False otherwise.
-const URLExistsChecker = (URL, database) => {
+const URLExistsChecker = (URL, database, user) => {
   for (let key in database) {
     if (database.hasOwnProperty(key)) {
-      if (database[key].longURL === URL) {
+      if (database[key].longURL === URL && database[key].userID === user) {
         return true;
       }
     }

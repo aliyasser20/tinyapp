@@ -24,6 +24,12 @@ This is a full stack web application built with **Node** and **Express** that al
 
 ---
 
+### Total Visits
+
+![total-visits](./docs/total-visits.png)
+
+---
+
 ### Login / Register Errors
 
 ![empty-email/password](./docs/empty-email:password.png)
