@@ -42,8 +42,28 @@ const generateRandomString = () => {
   return encodedString;
 };
 
+// ? Function that returns true if URL is valid. Otherwise false.
+const validateURL = (URL) => {
+  const URLLowerCase = URL.toLowerCase();
+  if (URLLowerCase.length === 0) {
+    return false;
+  }
+
+  if (URLLowerCase.slice(0, 7) === "http://" || URLLowerCase.slice(0, 8) === "https://") {
+    const URLWithoutHTTP = URLLowerCase.slice(8);
+  
+    if (URLWithoutHTTP.length === 0) {
+      return false;
+    }
+    return true;
+  } else {
+    return false;
+  }
+};
+
 module.exports = {
   generateRandomString,
   urlsForUser,
-  getUserByEmail
+  getUserByEmail,
+  validateURL
 };

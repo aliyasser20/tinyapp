@@ -25,6 +25,13 @@
         </div>
         <div class="card-footer text-muted">
           <h3>Edit</h3>
+          <% if (error) { %>
+            <p
+              style="color: red; font-weight: 500;margin-top: 30px; margin-bottom: 10px;"
+            >
+              Error: &nbsp <%= error %>
+            </p>
+            <% } %>
           <form class="form-inline added-center"  method="POST" action=<%= `/urls/${shortURL}?_method=PUT` %>>
             <div class="form-group mb-2">
               <label for="newURL">New URL:</label>

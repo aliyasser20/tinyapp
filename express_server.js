@@ -7,7 +7,7 @@ const methodOverride = require("method-override");
 // !
 
 // ! Module Imports
-const {generateRandomString, urlsForUser, getUserByEmail} = require("./helpers");
+const {generateRandomString, urlsForUser, getUserByEmail, validateURL} = require("./helpers");
 // !
 
 // ! Setup
@@ -58,7 +58,7 @@ app.get("/urls/new", (req, res) => {
   const currentUserId = req.session.user_id;
 
   if (users[currentUserId]) {
-    const templateVars = {user: users[currentUserId]};
+    const templateVars = {user: users[currentUserId], error: ""};
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -77,7 +77,8 @@ app.get("/urls/:shortURL", (req, res) => {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
-      user: users[currentUserId]
+      user: users[currentUserId],
+      error: ""
     };
     res.render("urls_show", templateVars);
   } else {
@@ -124,7 +125,7 @@ app.get("/login", (req, res) => {
 
 // ? Any Other Path
 // Renders 404 Not found page for any other path
-app.get("/:anythingElse", (req, res) => {
+app.get("*", (req, res) => {
   res.statusCode = 404;
   res.render("error", {code: "404", description: "Page Not Found"});
 });
@@ -136,7 +137,10 @@ app.get("/:anythingElse", (req, res) => {
 app.post("/urls", (req, res) => {
   const currentUserId = req.session.user_id;
 
-  if (users[currentUserId]) {
+  if (!validateURL(req.body.longURL)) {
+    res.statusCode = 400;
+    res.render("urls_new", {user: users[currentUserId], error: "Invalid URL!"});
+  } else if (users[currentUserId]) {
     const newShortURL = generateRandomString();
     urlDatabase[newShortURL] = {
       longURL: req.body.longURL,
@@ -168,7 +172,15 @@ app.delete("/urls/:shortURL", (req, res) => {
 app.put("/urls/:shortURL", (req, res) => {
   const currentUserId = req.session.user_id;
   
-  if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
+  if (!validateURL(req.body.newURL)) {
+    res.statusCode = 400;
+    res.render("urls_show", {
+      user: users[currentUserId],
+      error: "Invalid URL!",
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+    });
+  } else if (users[currentUserId] && urlDatabase[req.params.shortURL].userID === currentUserId) {
     urlDatabase[req.params.shortURL] = {
       ...urlDatabase[req.params.shortURL],
       longURL: req.body.newURL,
